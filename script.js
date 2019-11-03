@@ -7,7 +7,7 @@ const keyboard = {
     input: null,
     main: null,
     keysContainer: null,
-    keys: []
+    //keys: []
   },
 
   createKeys() {
@@ -122,9 +122,9 @@ const keyboard = {
             keyboard.elements.input.value += '\n';
           }
           
-
-          
           if (key.cl == 'CapsLock') {
+
+            key.classList.toggle('keyboard__key--active-on');
 
             if (keyboard.shift == false && keyboard.lang == 'en') {
               let spanz = document.querySelectorAll('span');
@@ -171,24 +171,37 @@ const keyboard = {
               keyboard.shift = false;
             }
           }
+        });
 
+        key.addEventListener('mousedown', function() {
           if (key.cl == 'ControlLeft') {
+            x = true;
             let newEvent = new Event('customEvent');
             newEvent.key = 'ControlLeft';
             window.dispatchEvent(newEvent);
           }
           
           if (key.cl == 'ShiftLeft') {
+            y = true;
             let newEvent = new Event('customEvent');
             newEvent.key = 'ShiftLeft';
             window.dispatchEvent(newEvent);
           }
+        });
+
+        key.addEventListener('mouseup', function() {
+          if (key.cl == 'ControlLeft') {
+            x = false;
+          }
           
-          });
+          if (key.cl == 'ShiftLeft') {
+            y = false;
+          }
+        });
 
         key.addEventListener('focus', function() {
           key.blur();
-        })
+        });
 
         this.elements.keysContainer.appendChild(key);
       }
@@ -199,7 +212,7 @@ const keyboard = {
 
   init() {
     // Create main elements
-    this.elements.input = document.createElement('input');
+    this.elements.input = document.createElement('input');          ///////////////////////////////
     this.elements.main = document.createElement('div');
     this.elements.keysContainer = document.createElement('div');
 
@@ -228,26 +241,68 @@ window.addEventListener('DOMContentLoaded', function() {
 
 });
 
+
+
+// Preventing autorepeat
+let lastKeyPressed = null;
+// Second way to prevent autorepeat
+// let down = false;
+
 window.addEventListener('keydown', function(event) {
 
+  // Preventing autorepeat for LeftCTRL and LeftSHIFT
+  if (lastKeyPressed == event.code && (event.code == 'ControlLeft' || event.code == 'ShiftLeft')) {
+    return
+  };
+  lastKeyPressed = event.code;
+ 
+  // Second way to prevent autorepeat
+  /*
+  if (down) return;
+  down = true;
+  */  
+
+  // 'b' means 'button'
   let b = document.querySelector(`.keyboard__key-code-${event.code}`);
   if (b) {
-    b.click();
+
+    if (b.cl != 'ShiftLeft' && b.cl != 'ControlLeft') {
+      b.click();
+    } else if (b.cl == 'ShiftLeft') {
+      let btn = document.querySelector(".keyboard__key-code-ShiftLeft");
+      triggerMouseEvent (btn, "mousedown");
+    } else if (b.cl == 'ControlLeft') {
+      let btn = document.querySelector(".keyboard__key-code-ControlLeft");
+      triggerMouseEvent (btn, "mousedown");
+    }
+
     b.classList.add('keyboard__key--active');
   }
 
 });
 
 window.addEventListener('keyup', function(event) {
+  
+  // Preventing autorepeat
+  lastKeyPressed = null;
+  // Second way to prevent autorepeat
+  // down = false;
+
   let b = document.querySelector(`.keyboard__key-code-${event.code}`);
   if (b) {
     b.classList.remove('keyboard__key--active');
+
+    if (b.cl == 'ShiftLeft') {
+      let btn = document.querySelector(".keyboard__key-code-ShiftLeft");
+      triggerMouseEvent (btn, "mouseup");
+    }
+    if (b.cl == 'ControlLeft') {
+      let btn = document.querySelector(".keyboard__key-code-ControlLeft");
+      triggerMouseEvent (btn, "mouseup");
+    }
+
   }
 });
-
-
-
-//
 
 
 
@@ -270,9 +325,7 @@ function changeLanguage() {
       RUSbuttonz[i].classList.add('HIDDEN');
     }
     keyboard.lang = 'en';
-  }
-
-  else if (keyboard.lang == 'en' && keyboard.shift == true) {
+  } else if (keyboard.lang == 'en' && keyboard.shift == true) {
     let spanz = document.querySelectorAll('span');
     let buttonz = document.querySelectorAll('.RUS_SHIFT');
     for (let i = 0; i < spanz.length; i++) {
@@ -293,12 +346,25 @@ function changeLanguage() {
     }
     keyboard.lang = 'en';
   }
-  
 }
 
-window.addEventListener('customEvent', function(event) {
-  if (event.key == 'ControlLeft' && event.key == 'ShiftLeft') {
-    changeLanguage();
-  }
-  
+
+
+// Sorry for global variables with such names...
+let x = false;
+let y = false;
+
+window.addEventListener('customEvent', function() {
+    if (x && y) {
+      changeLanguage();
+    }
 });
+
+
+
+// Custom function for simulating mouse events
+function triggerMouseEvent (node, eventType) {
+  var clickEvent = document.createEvent ('MouseEvents');
+  clickEvent.initEvent (eventType, true, true);
+  node.dispatchEvent (clickEvent);
+}

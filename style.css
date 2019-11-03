@@ -64,7 +64,7 @@
   content: '';
   position: absolute;
   top: 8%;
-  right: 8%;
+  left: 8%;
   width: 1vw;
   height: 1vw;
   background: rgba(0, 0, 0, 0.5);
