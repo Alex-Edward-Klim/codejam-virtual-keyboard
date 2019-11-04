@@ -7,7 +7,6 @@ const keyboard = {
     input: null,
     main: null,
     keysContainer: null,
-    //keys: []
   },
 
   createKeys() {
@@ -76,6 +75,9 @@ const keyboard = {
         }
         if (keyLayout[i][j] == 'CapsLock') {
           key.classList.add('keyboard__key--activatable');
+          if (keyboard.shift) {
+            key.classList.add('keyboard__key--active-on');
+          }
         }
 
         key.innerHTML = `<span class="ENG">${engLayout[i][j]}</span><span class="RUS">${rusLayout[i][j]}</span><span class="SHIFT">${ENGshiftLayout[i][j]}</span><span class="RUS_SHIFT">${RUSshiftLayout[i][j]}</span>`;
@@ -136,6 +138,7 @@ const keyboard = {
                 buttonz[i].classList.remove('HIDDEN');
               }
               keyboard.shift = true;
+              localStorage.setItem('virtualKeyboardShift', true);
 
             } else if (keyboard.shift == true && keyboard.lang == 'en') {
               let spanz = document.querySelectorAll('span');
@@ -147,6 +150,7 @@ const keyboard = {
                 buttonz[i].classList.remove('HIDDEN');
               }
               keyboard.shift = false;
+              localStorage.setItem('virtualKeyboardShift', false);
 
             } else if (keyboard.shift == false && keyboard.lang == 'rus') {
               let spanz = document.querySelectorAll('span');
@@ -158,6 +162,7 @@ const keyboard = {
                 buttonz[i].classList.remove('HIDDEN');
               }
               keyboard.shift = true;
+              localStorage.setItem('virtualKeyboardShift', true);
 
             } else if (keyboard.shift == true && keyboard.lang == 'rus') {
               let spanz = document.querySelectorAll('span');
@@ -169,6 +174,7 @@ const keyboard = {
                 buttonz[i].classList.remove('HIDDEN');
               }
               keyboard.shift = false;
+              localStorage.setItem('virtualKeyboardShift', false);
             }
           }
         });
@@ -233,6 +239,14 @@ const keyboard = {
 }
 
 window.addEventListener('DOMContentLoaded', function() {
+
+  keyboard.lang = localStorage.getItem('virtualKeyboardLang') || 'en';
+  if (localStorage.getItem('virtualKeyboardShift') == 'true') {
+    keyboard.shift = true;
+  } else {
+    keyboard.shift = false;
+  }
+
   keyboard.init();
 
   keyboard.elements.input.addEventListener('focus', function() {
@@ -317,6 +331,7 @@ function changeLanguage() {
       RUSbuttonz[i].classList.remove('HIDDEN');
     }
     keyboard.lang = 'rus';
+    localStorage.setItem('virtualKeyboardLang', 'rus');
   } else if (keyboard.lang == 'rus' && keyboard.shift == false) {
     for (let i = 0; i < ENGbuttonz.length; i++) {
       ENGbuttonz[i].classList.remove('HIDDEN');
@@ -325,6 +340,7 @@ function changeLanguage() {
       RUSbuttonz[i].classList.add('HIDDEN');
     }
     keyboard.lang = 'en';
+    localStorage.setItem('virtualKeyboardLang', 'en');
   } else if (keyboard.lang == 'en' && keyboard.shift == true) {
     let spanz = document.querySelectorAll('span');
     let buttonz = document.querySelectorAll('.RUS_SHIFT');
@@ -335,6 +351,7 @@ function changeLanguage() {
       buttonz[i].classList.remove('HIDDEN');
     }
     keyboard.lang = 'rus';
+    localStorage.setItem('virtualKeyboardLang', 'rus');
   } else if (keyboard.lang == 'rus' && keyboard.shift == true) {
     let spanz = document.querySelectorAll('span');
     let buttonz = document.querySelectorAll('.SHIFT');
@@ -345,6 +362,7 @@ function changeLanguage() {
       buttonz[i].classList.remove('HIDDEN');
     }
     keyboard.lang = 'en';
+    localStorage.setItem('virtualKeyboardLang', 'en');
   }
 }
 
