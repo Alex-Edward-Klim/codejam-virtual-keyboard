@@ -4,7 +4,30 @@
 
 .input-field {
   width: 100%;
-  height: 35vh;
+  height: 20vh;
+}
+
+.note {
+  padding-left: 2vw;
+  font-size: 10pt;
+}
+
+.note__important {
+  color: #ff0000;
+  font-weight: bold;
+}
+
+.note__warning {
+  font-weight: bold;
+}
+
+.note__underline {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.pointToNote {
+  background: #add8e6;
 }
 
 .keyboard {
@@ -30,12 +53,6 @@
   outline: none;
   cursor: pointer;
   font-size: 1.8vw;
-  /*
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  vertical-align: top;
-  */
   padding: 0;
   -webkit-tap-highlight-color: transparent;
   position: relative;

@@ -80,7 +80,7 @@ const keyboard = {
           }
         }
 
-        key.innerHTML = `<span class="ENG">${engLayout[i][j]}</span><span class="RUS">${rusLayout[i][j]}</span><span class="SHIFT">${ENGshiftLayout[i][j]}</span><span class="RUS_SHIFT">${RUSshiftLayout[i][j]}</span>`;
+        key.innerHTML = `<span class="ENG keySpan">${engLayout[i][j]}</span><span class="RUS keySpan">${rusLayout[i][j]}</span><span class="SHIFT keySpan">${ENGshiftLayout[i][j]}</span><span class="RUS_SHIFT keySpan">${RUSshiftLayout[i][j]}</span>`;
         
         if (keyboard.lang == 'en' && keyboard.shift == false) {
           key.querySelector('.RUS').classList.add('HIDDEN');
@@ -129,7 +129,7 @@ const keyboard = {
             key.classList.toggle('keyboard__key--active-on');
 
             if (keyboard.shift == false && keyboard.lang == 'en') {
-              let spanz = document.querySelectorAll('span');
+              let spanz = document.querySelectorAll('.keySpan');
               let buttonz = document.querySelectorAll('.SHIFT');
               for (let i = 0; i < spanz.length; i++) {
                 spanz[i].classList.add('HIDDEN');
@@ -141,7 +141,7 @@ const keyboard = {
               localStorage.setItem('virtualKeyboardShift', true);
 
             } else if (keyboard.shift == true && keyboard.lang == 'en') {
-              let spanz = document.querySelectorAll('span');
+              let spanz = document.querySelectorAll('.keySpan');
               let buttonz = document.querySelectorAll('.ENG');
               for (let i = 0; i < spanz.length; i++) {
                 spanz[i].classList.add('HIDDEN');
@@ -153,7 +153,7 @@ const keyboard = {
               localStorage.setItem('virtualKeyboardShift', false);
 
             } else if (keyboard.shift == false && keyboard.lang == 'rus') {
-              let spanz = document.querySelectorAll('span');
+              let spanz = document.querySelectorAll('.keySpan');
               let buttonz = document.querySelectorAll('.RUS_SHIFT');
               for (let i = 0; i < spanz.length; i++) {
                 spanz[i].classList.add('HIDDEN');
@@ -165,7 +165,7 @@ const keyboard = {
               localStorage.setItem('virtualKeyboardShift', true);
 
             } else if (keyboard.shift == true && keyboard.lang == 'rus') {
-              let spanz = document.querySelectorAll('span');
+              let spanz = document.querySelectorAll('.keySpan');
               let buttonz = document.querySelectorAll('.RUS');
               for (let i = 0; i < spanz.length; i++) {
                 spanz[i].classList.add('HIDDEN');
@@ -183,14 +183,14 @@ const keyboard = {
           if (key.cl == 'ControlLeft') {
             x = true;
             let newEvent = new Event('customEvent');
-            newEvent.key = 'ControlLeft';
+            // newEvent.key = 'ControlLeft';
             window.dispatchEvent(newEvent);
           }
           
           if (key.cl == 'ShiftLeft') {
             y = true;
             let newEvent = new Event('customEvent');
-            newEvent.key = 'ShiftLeft';
+            // newEvent.key = 'ShiftLeft';
             window.dispatchEvent(newEvent);
           }
         });
@@ -216,21 +216,31 @@ const keyboard = {
 
   },
 
+  notesInnerHTML: `<p class="note"><span class="note__important">IMPORTANT NOTE:</span> <span class="note__warning">Virtual Keyboard <span class="note__underline">supports AltGraph</span> button!</span> So:<br>
+  - if you have this button on your real keyboard<br>
+  (or)<br>
+  - if you press RIGHT ALT button when your system uses other than English layout<br>
+  <span class="note__underline">Then BOTH ControlLeft and AltRight Virtual Keyboard keys will be clicked at the same time!</span><br>
+  See "AltGraph" here: <a href="https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/getModifierState" target="_blank">https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/getModifierState</a></p>`,
+
   init() {
     // Create main elements
-    this.elements.input = document.createElement('input');          ///////////////////////////////
+    this.elements.input = document.createElement('input'); ///////////////////////////////
+    let notes = document.createElement('div');
+    
     this.elements.main = document.createElement('div');
     this.elements.keysContainer = document.createElement('div');
 
     // Setup main elements
     this.elements.input.classList.add('input-field');
+    notes.innerHTML = this.notesInnerHTML;
+    notes.classList.add('notes-container');
     this.elements.main.classList.add('keyboard');
     this.elements.keysContainer.classList.add('keyboard__keys');
 
-    //
-
     // Put elements into DOM
     document.body.appendChild(this.elements.input);
+    document.body.appendChild(notes);
     this.elements.main.appendChild(this.elements.keysContainer);
     document.body.appendChild(this.elements.main);
 
@@ -262,11 +272,31 @@ let lastKeyPressed = null;
 // Second way to prevent autorepeat
 // let down = false;
 
+// Preventing 'event.shiftkey()' issue
+// Sorry for global variables...
+let shiftL = false;
+let shiftR = false;
+
 window.addEventListener('keydown', function(event) {
+
+  if (event.key == 'AltGraph') {
+    document.querySelector('.notes-container').classList.add('pointToNote');
+  }
+
+  // Solving ALT problem (blurring the page after pressing the ALT key)
+  if (event.code == 'AltLeft' || event.code == 'AltRight') {
+    event.preventDefault();
+    if (event.code == 'AltLeft') {
+      document.querySelector('.keyboard__key-code-AltLeft').classList.add('keyboard__key--active');
+    } if (event.code == 'AltRight') {
+      document.querySelector('.keyboard__key-code-AltRight').classList.add('keyboard__key--active');
+    }
+    return;
+  }
 
   // Preventing autorepeat for LeftCTRL and LeftSHIFT
   if (lastKeyPressed == event.code && (event.code == 'ControlLeft' || event.code == 'ShiftLeft')) {
-    return
+    return;
   };
   lastKeyPressed = event.code;
  
@@ -293,10 +323,17 @@ window.addEventListener('keydown', function(event) {
     b.classList.add('keyboard__key--active');
   }
 
+  // Preventing 'event.shiftkey()' issue
+  if (event.shiftKey && event.code == 'ShiftLeft') {
+    shiftR = true;
+  } else if (event.shiftKey && event.code == 'ShiftRight') {
+    shiftL = true;
+  }
+
 });
 
 window.addEventListener('keyup', function(event) {
-  
+
   // Preventing autorepeat
   lastKeyPressed = null;
   // Second way to prevent autorepeat
@@ -315,34 +352,52 @@ window.addEventListener('keyup', function(event) {
       triggerMouseEvent (btn, "mouseup");
     }
 
+    if (event.key == 'AltGraph') {
+      document.querySelector('.notes-container').classList.remove('pointToNote');
+    }
+
   }
+
+  // Preventing 'event.shiftkey()' issue
+  if (shiftL) {
+    document.querySelector('.keyboard__key-code-ShiftLeft').classList.remove('keyboard__key--active');
+    shiftL = false;
+  }
+  if (shiftR) {
+    document.querySelector('.keyboard__key-code-ShiftRight').classList.remove('keyboard__key--active');
+    shiftR = false;
+  }
+
 });
 
-
-
 function changeLanguage() {
-  let ENGbuttonz = document.querySelectorAll('span.ENG');
-  let RUSbuttonz = document.querySelectorAll('span.RUS');
+
   if (keyboard.lang == 'en' && keyboard.shift == false) {
-    for (let i = 0; i < ENGbuttonz.length; i++) {
-      ENGbuttonz[i].classList.add('HIDDEN');
+    let spanz = document.querySelectorAll('.keySpan');
+    let buttonz = document.querySelectorAll('.RUS');
+    for (let i = 0; i < spanz.length; i++) {
+      spanz[i].classList.add('HIDDEN');
     }
-    for (let i = 0; i < RUSbuttonz.length; i++) {
-      RUSbuttonz[i].classList.remove('HIDDEN');
+    for (let i = 0; i < buttonz.length; i++) {
+      buttonz[i].classList.remove('HIDDEN');
     }
     keyboard.lang = 'rus';
     localStorage.setItem('virtualKeyboardLang', 'rus');
+
   } else if (keyboard.lang == 'rus' && keyboard.shift == false) {
-    for (let i = 0; i < ENGbuttonz.length; i++) {
-      ENGbuttonz[i].classList.remove('HIDDEN');
+    let spanz = document.querySelectorAll('.keySpan');
+    let buttonz = document.querySelectorAll('.ENG');
+    for (let i = 0; i < spanz.length; i++) {
+      spanz[i].classList.add('HIDDEN');
     }
-    for (let i = 0; i < RUSbuttonz.length; i++) {
-      RUSbuttonz[i].classList.add('HIDDEN');
+    for (let i = 0; i < buttonz.length; i++) {
+      buttonz[i].classList.remove('HIDDEN');
     }
     keyboard.lang = 'en';
     localStorage.setItem('virtualKeyboardLang', 'en');
-  } else if (keyboard.lang == 'en' && keyboard.shift == true) {
-    let spanz = document.querySelectorAll('span');
+  }
+  else if (keyboard.lang == 'en' && keyboard.shift == true) {
+    let spanz = document.querySelectorAll('.keySpan');
     let buttonz = document.querySelectorAll('.RUS_SHIFT');
     for (let i = 0; i < spanz.length; i++) {
       spanz[i].classList.add('HIDDEN');
@@ -353,7 +408,7 @@ function changeLanguage() {
     keyboard.lang = 'rus';
     localStorage.setItem('virtualKeyboardLang', 'rus');
   } else if (keyboard.lang == 'rus' && keyboard.shift == true) {
-    let spanz = document.querySelectorAll('span');
+    let spanz = document.querySelectorAll('.keySpan');
     let buttonz = document.querySelectorAll('.SHIFT');
     for (let i = 0; i < spanz.length; i++) {
       spanz[i].classList.add('HIDDEN');
@@ -366,8 +421,6 @@ function changeLanguage() {
   }
 }
 
-
-
 // Sorry for global variables with such names...
 let x = false;
 let y = false;
@@ -378,11 +431,16 @@ window.addEventListener('customEvent', function() {
     }
 });
 
-
-
 // Custom function for simulating mouse events
 function triggerMouseEvent (node, eventType) {
   var clickEvent = document.createEvent ('MouseEvents');
   clickEvent.initEvent (eventType, true, true);
   node.dispatchEvent (clickEvent);
 }
+
+window.addEventListener('blur', function() {
+  let arr = document.querySelectorAll('.keyboard__key');
+  for (let i = 0; i < arr.length; i++) {
+    arr[i].classList.remove('keyboard__key--active');
+  }
+});
