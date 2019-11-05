@@ -121,7 +121,15 @@ const keyboard = {
           } else if (key.cl == 'Tab') {
             keyboard.elements.input.value += '\t';
           } else if (key.cl == 'Enter') {
-            keyboard.elements.input.value += '\n';
+            keyboard.elements.input.value += '\\n';
+          } else if (key.cl == 'ArrowUp') {
+            keyboard.elements.input.value += '\u2191';
+          } else if (key.cl == 'ArrowRight') {
+            keyboard.elements.input.value += '\u2192';
+          } else if (key.cl == 'ArrowDown') {
+            keyboard.elements.input.value += '\u2193';
+          } else if (key.cl == 'ArrowLeft') {
+            keyboard.elements.input.value += '\u2190';
           }
           
           if (key.cl == 'CapsLock') {
@@ -176,7 +184,7 @@ const keyboard = {
   (or)<br>
   - if you press RIGHT ALT button when your OS system (!) uses layout other than English<br>
   <span class="note__underline">Then BOTH ControlLeft and AltRight Virtual Keyboard keys will be clicked at the same time!</span><br>
-  See "AltGraph" here: <a href="https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/getModifierState" target="_blank">https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/getModifierState</a></p>`,
+  See "AltGraph" here: <a href="https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/getModifierState" target="_blank">https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/getModifierState</a></p><p class="lang-key-combination">Use LeftCTRL + LeftShift to switch between languages</p>`,
 
   init() {
     // Create main elements
